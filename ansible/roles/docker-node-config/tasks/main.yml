@@ -1,0 +1,42 @@
+---
+- name: pip install docker
+  pip:
+    name: docker
+
+- name: read docker manager command
+  raw: "docker -H tcp://{{ dns_docker_name }}:2376 swarm join-token manager | grep token"
+  register: docker_swarm_cmd
+
+- name: Docker swarm docker_swarm_cmd
+  debug:
+    msg: "{{ docker_swarm_cmd.stdout_lines }}"
+
+- name: Add node to the cluster
+  raw: "{{ docker_swarm_cmd.stdout_lines[0] }}"
+
+#- name: Add node to the cluster
+#  docker_swarm:
+#    state: join
+#    join_token: "{{ docker_token.stdout_lines }}"
+#    remote_addrs: [ '{{ docker_swarm_ip.stdout_lines }}' ]
+
+- name: mkdir with configs
+  file:
+    path: "/root/.docker"
+    mode: 0775
+    state: directory
+
+- name: copy config.json
+  copy:
+    src: config.json
+    dest: /root/.docker/config.json
+
+- name: copy daemon.json
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+
+- name: Restart service docker
+  service:
+    name: docker
+    state: restarted

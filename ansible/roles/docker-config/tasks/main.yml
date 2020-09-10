@@ -1,0 +1,29 @@
+---
+- name: pip install docker
+  pip:
+    name: docker
+
+- name: Init a new swarm with default parameters
+  docker_swarm:
+    state: present
+
+- name: mkdir with configs
+  file:
+    path: "/root/.docker"
+    mode: 0775
+    state: directory
+
+- name: copy config.json
+  copy:
+    src: config.json
+    dest: /root/.docker/config.json
+
+- name: copy daemon.json
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+
+- name: Restart service docker
+  service:
+    name: docker
+    state: restarted

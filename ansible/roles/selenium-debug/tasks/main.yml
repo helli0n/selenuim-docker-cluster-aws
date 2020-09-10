@@ -1,0 +1,10 @@
+---
+
+- name: copy docker-selenium-debug-compose.yml
+  copy:
+    src: docker-selenium-debug-compose.yml
+    dest: /opt/docker-selenium-debug-compose.yml
+
+- name: Deploy grid-debug
+  shell: docker stack deploy --compose-file=/opt/docker-selenium-debug-compose.yml grid-debug --with-registry-auth
+

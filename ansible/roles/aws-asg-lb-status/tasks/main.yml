@@ -1,0 +1,53 @@
+---
+  - name: pip install boto3
+    pip:
+      name: boto3
+
+  - name: find asg
+    ec2_asg_facts:
+      region: us-west-2
+      tags:
+        env: "docker"
+    register: asg_status
+
+  - name: show ec2_hosts
+    debug:
+      msg: "{{ asg_status.results[0].desired_capacity }}"
+  - name: Add  asg capacity
+    set_fact:
+      desired_capacity: "{{ asg_status.results[0].desired_capacity }}"
+
+  - name: Add load_balancer_names
+    set_fact:
+      load_balancer_name: "{{ asg_status.results[0].load_balancer_names[0] }}"
+
+  - name: elb dns
+    elb_classic_lb_facts:
+      region: us-west-2
+      names: "{{ load_balancer_name }}"
+    register: elb_facts
+
+  - name: show stack-name
+    debug:
+      msg: "{{ elb_facts.elbs[0].tags['aws:cloudformation:stack-name'] }}"
+
+  - name: Add stack-name as variable
+    set_fact:
+      stack_name: "{{ elb_facts.elbs[0].tags['aws:cloudformation:stack-name'] }}"
+
+  - name: cloudformation_facts
+    cloudformation_facts:
+      stack_name: "{{ stack_name }}"
+      all_facts: yes
+      region: us-west-2
+    register: my_stack
+
+  - name: Define dns record
+    set_fact:
+      dns_records: "{{ item.ResourceProperties }}"
+    when: item.LogicalResourceId == "DNS" and item.ResourceStatus == "CREATE_COMPLETE"
+    with_items: "{{ my_stack.ansible_facts.cloudformation[stack_name].stack_events }}"
+
+  - name: DNS name Docker swarm define
+    set_fact:
+      dns_docker_name: "{{ dns_records.RecordSets[0].Name[:-1] }}"

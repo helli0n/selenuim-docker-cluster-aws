@@ -1,0 +1,10 @@
+---
+
+- name: copy docker-selenium-compose.yml
+  copy:
+    src: docker-selenium-compose.yml
+    dest: /opt/docker-selenium-compose.yml
+
+- name: Deploy grid
+  shell: docker stack deploy --compose-file=/opt/docker-selenium-compose.yml grid --with-registry-auth
+

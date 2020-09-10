@@ -1,0 +1,21 @@
+---
+- name: pip install docker
+  pip:
+    name: docker
+
+- name: Init a new swarm with default parameters
+  docker_swarm:
+    state: present
+
+- name: copy portainer-agent-stack.yml
+  copy:
+    src: portainer-agent-stack.yml
+    dest: /opt/portainer-agent-stack.yml
+
+- name: Deploy portainer
+  shell: docker stack deploy --compose-file=/opt/portainer-agent-stack.yml portainer --with-registry-auth
+  ##  docker_stack:
+  ##    state: present
+#    name: portainer
+#    compose:
+#    -  /opt/portainer-agent-stack.yml

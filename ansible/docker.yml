@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  remote_user: ec2-user
+  become: yes
+
+  roles:
+    - role: aws-asg-lb-status
+    - { role: 'docker-config', when: desired_capacity == '1' }
+    - { role: 'portainer', when: desired_capacity == '1' }
+    - { role: 'selenium', when: desired_capacity == '1' }
+    - { role: 'selenium-debug', when: desired_capacity == '1' }
+    - { role: 'docker-node-config', when: desired_capacity != '1' and desired_capacity != '0'}
