@@ -23,17 +23,17 @@ Parameters:
   VPC:
     Type: AWS::EC2::VPC::Id
     Description: VPC ID.
-    Default: vpc-id
+    Default: vpc-12345
 
   SecurityGroups:
     Type: List<AWS::EC2::SecurityGroup::Id>
     Description: Uses private SecurityGroup.
-    Default: 'sg-id,sg-id2'
+    Default: 'sg-12345,sg-123456'
 
   PrivateSubnets:
     Type: List<AWS::EC2::Subnet::Id>
     Description: Private subnets where Host should be deployed.
-    Default: subnet-id
+    Default: subnet-12345
 
 # ------------------------------------------------------------------------------
 # Mappings
